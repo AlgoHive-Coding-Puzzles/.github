@@ -59,7 +59,7 @@ All this flexibility comes without sacrificing performance - the platform remain
 ## Trusted by
 
 <p align="center">
-  <img src="https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fbim-w.com%2Fwp-content%2Fuploads%2Flogo_ynov_campus_rvb.jpg&sp=1743935723Te671ed4a8ed2bd7a6575e2d36065c39686c217c03c487017ccf1c42596b757fa" width="150px" title="Algohive">
+  <img src="https://etudescreatives.com/wp-content/uploads/2022/11/ynov-campus.png" width="150px" title="Ynov Campus">
 </p>
 
 <p align="center">

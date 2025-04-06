@@ -8,6 +8,16 @@
 
 <p align="center">Algohive is a <b>self-hosted coding game platform.</b><br>that allows developers to create puzzles for developers to solve.</p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Total lines-70k-blue">
+  <img src="https://img.shields.io/badge/Microservices count-11-red">
+  <img src="https://img.shields.io/badge/Total download-98-green">
+  <a href="https://github.com/AlgoHive-Coding-Puzzles/AlgoHive-Infra/tree/main/production">
+    <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff">
+  </a>
+  <img src="https://img.shields.io/badge/System health-healthy-green">
+</p>
+
 ---
 
 Each puzzle contains two parts to solve, allowing developers to test their skills in a variety of ways. The puzzles are created using a proprietary file format that is compiled into a single file for distribution.
@@ -17,22 +27,50 @@ Each puzzle contains two parts to solve, allowing developers to test their skill
 ---
 
 <p align="center">
-<img src="https://skillicons.dev/icons?i=react,vite,ts,py,go,postgres,redis,docker,swagger">
+<img src="https://skillicons.dev/icons?i=go,ts,py,react,vite,postgres,redis,docker,githubactions,grafana,prometheus">
+</p>
+
+---
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/AlgoHive-Coding-Puzzles/Documentation/refs/heads/main/images/algohive-welcome.png">
 </p>
 
 ---
 
 ## Why
 
-Algohive is a coding game plateform for developers by developers. It is a self-hosted solution that allows developers, schools to create puzzles for other developers to solve. The platform is designed to be lightweight and easy to use, with a focus on creating and solving puzzles.
+Algohive is a coding game plateform for developers by developers. It is a self-hosted solution that allows developers, schools, and companies to create puzzles for other developers to solve. The platform is designed to be lightweight and easy to use, with a focus on creating and solving puzzles.
+
+Most of the coding game platforms are usable one time only, and are not self-hosted. This means that the puzzles are not reusable, and the platform is not customizable.
+
+## Trusted by
+
+<p align="center">
+  <img src="https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fbim-w.com%2Fwp-content%2Fuploads%2Flogo_ynov_campus_rvb.jpg&sp=1743935723Te671ed4a8ed2bd7a6575e2d36065c39686c217c03c487017ccf1c42596b757fa" width="150px" title="Algohive">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Ynov-Toulouse Campus-blue">
+  <img src="https://img.shields.io/badge/Ynov-Lyon Campus-orange">
+  <img src="https://img.shields.io/badge/Ynov-Montpellier Campus-red">
+</p>
 
 ## Features Highlights
 
-- A file format created for defining puzzles
-- A command line interface forge for creating, testing, and managing puzzles
-- A self-hostable API for loading and serving puzzles
-- A self-hostable web platform for managing users, competitions, and puzzles
-- [LATER] A web platform for users to interact with the puzzles
+- 🗃️ A file format created for defining puzzles [.alghive]()
+- 🧪 A Pypi Python library for implementing in your own solutions : [HiveCraft](https://github.com/AlgoHive-Coding-Puzzles/HiveCraft)
+- ⌨️ A CLI forge for creating, testing, and managing puzzles : [BeeLine](https://github.com/AlgoHive-Coding-Puzzles/BeeLine)
+- 🐝 A GitHub Action workflow for automatically test and compile your puzzles [BeeToFlow](https://github.com/AlgoHive-Coding-Puzzles/BeeToFlow)
+- 🖨️ A self-hostable API for loading and serving puzzles : [BeeAPI](https://github.com/AlgoHive-Coding-Puzzles/BeeAPI)
+- 📦 A self-hostable Web interface for managing the puzzles inside the BeeAPIs : [BeeHub](https://github.com/AlgoHive-Coding-Puzzles/BeeHub)
+- 🧩 A self-hostable web platform for managing users, competitions, and puzzles : [AlgoHive Client/API](https://github.com/AlgoHive-Coding-Puzzles/AlgoHive-Client)
+
+## Architecture
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/AlgoHive-Coding-Puzzles/Documentation/refs/heads/main/docs/AlgoHiveArchi.drawio.png">
+</p>
 
 ## Quick Start
 
@@ -44,62 +82,164 @@ Installing Alghive is pretty straight forward, in order to do so follow these st
 ```yaml
 name: algohive
 services:
-  server:
-    image: ghcr.io/eric-philippe/algohive/algohive/api:latest
+  algohive-server:
+    container_name: algohive-server
+    image: ghcr.io/algohive-coding-puzzles/api:latest
     env_file: server.env
     depends_on:
-      - db
-      - cache
+      - algohive-db
+      - algohive-cache
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "8001:8080"
     networks:
       - algohive-network
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
-  client:
-    image: ghcr.io/eric-philippe/algohive/algohive/client:latest
+  algohive-client:
+    container_name: algohive-client
+    image: ghcr.io/algohive-coding-puzzles/client:latest
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "7002:80"
     networks:
       - algohive-network
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
-  beeapi-server1:
-    image: ghcr.io/eric-philippe/algohive/beeapi:latest
+  beehub:
+    container_name: beehub
+    image: ghcr.io/algohive-coding-puzzles/beehub:latest
+    ports:
+      - "8002:8081"
+    networks:
+      - algohive-network
+    env_file: server.env
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - beehub-db:/app/backend/db
+    depends_on:
+      - beeapi-server-first
+      - beeapi-server-second
+
+  beeapi-server-first:
+    container_name: beeapi-server-first
+    image: ghcr.io/algohive-coding-puzzles/beeapi-go:latest
     restart: unless-stopped
     volumes:
-      - ./data/beeapi-server1/puzzles:/app/puzzles
+      - puzzles-first:/app/puzzles
     ports:
       - "5000:5000"
     networks:
       - algohive-network
+    environment:
+      - TZ=Europe/Paris
+      - SERVER_NAME=BeeAPI-First
+      - SERVER_DESCRIPTION=This is the server containing puzzles for the first scope
+    labels:
+      - "algohive.service.type=beeapi"
 
-  beeapi-server2:
-    image: ghcr.io/eric-philippe/algohive/beeapi:latest
+  beeapi-server-second:
+    container_name: beeapi-server-second
+    image: ghcr.io/algohive-coding-puzzles/beeapi-go:latest
     restart: unless-stopped
     volumes:
-      - ./data/beeapi-server2/puzzles:/app/puzzles
+      - puzzles-second:/app/puzzles
     ports:
       - "5001:5000"
     networks:
       - algohive-network
+    environment:
+      - TZ=Europe/Paris
+      - SERVER_NAME=BeeAPI-Second
+      - SERVER_DESCRIPTION=This is the server containing puzzles for the second scope
+    labels:
+      - "algohive.service.type=beeapi"
 
-  db:
+  algohive-db:
+    container_name: algohive-db
     image: postgres:17-alpine
+    restart: unless-stopped
     env_file: server.env
+    environment:
+      - TZ=Europe/Paris
     volumes:
-      - ./db-data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
     networks:
       - algohive-network
 
-  cache:
+  algohive-cache:
+    container_name: algohive-cache
     image: redis:alpine
     restart: always
+    ports:
+      - "6379:6379"
     networks:
       - algohive-network
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=5d"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    networks:
+      - algohive-network
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Paris
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - TZ=Europe/Paris
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - algohive-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
 volumes:
   db-data:
+  puzzles-first:
+  puzzles-second:
+  beehub-db:
+  grafana_data:
+  prometheus_data:
 
 networks:
   algohive-network:
@@ -108,7 +248,60 @@ networks:
 - Create a file named server.env with this content:
 
 ```env
+#
+# DB
+#
+POSTGRES_HOST=algohive-db
+POSTGRES_PORT=5432
+POSTGRES_DB=algohive
+POSTGRES_USER=algohive
+POSTGRES_PASSWORD=algohive
 
+#
+# JWT
+#
+JWT_SECRET=algohive
+JWT_EXPIRATION=86400
+
+#
+# Server
+#
+API_PORT=8080
+ENV=production
+ALLOWED_ORIGINS=*
+DEFAULT_PASSWORD=algohive
+BEE_APIS=http://beeapi-server-first:5000,http://beeapi-server-second:5000
+CLIENT_URL=http://localhost
+MAIL_USERNAME=admin.admin@admin.com
+MAIL_PASSWORD=
+MAIL_PORT=587
+MAIL_HOST=smtp.admin.com
+
+#
+# Cache
+#
+CACHE_TTL=86400
+CACHE_HOST=algohive-cache
+CACHE_PASSWORD=
+CACHE_DB=0
+CACHE_PORT=6379
+CACHE_EXPI_MIN=30
+
+#
+# BeeHub
+#
+DATABASE_URL=sqlite:///./db/beehub.db
+SECRET_KEY=superSecretPassword
+ACCESS_TOKEN_EXPIRE_MINUTES=1440  # 24 hours
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
+APP_PORT=8081
+DISCOVERY_ENABLED=true
+DISCOVERY_PORT_RANGE_START=5000
+DISCOVERY_PORT_RANGE_END=5099
+DISCOVERY_SERVICE_TYPE=beeapi
+DISCOVERY_REFRESH_INTERVAL=60
+DISCOVERY_URLS=http://beeapi-server-first:5000,http://beeapi-server-second:5000
 ```
 
 - Start the services by running the following command:
@@ -117,184 +310,13 @@ networks:
 docker-compose up -d --build
 ```
 
+> Useful if you don't want to use the `BeeHub` web interface to manage the puzzles.
+
 - Authorize access to the BeeAPI folder(s) for every instance of the BeeAPI server:
 
 > This will allow you to put puzzles in the folder and have them available in the API.
 
 ````bash
-sudo chown -R $USER:$USER ./data/beeapi-server1/puzzles
+sudo chown -R $USER:$USER ./data/beeapi-server-first/puzzles
 ```
-
-## Quick Overview
-
-### CLI - HiveCraft
-
-Hivecraft is a command line interface for creating and managing AlgoHive puzzles. It is a tool for developers to create, test, manage and compile puzzles for the AlgoHive platform. AlgoHive works by using a proprietary file format to define puzzles, and Hivecraft is a tool to help developers create these files.
-
-### Self-Hostable API - BeeAPI
-
-API will be able to load puzzles from .alghive files, verify them using the same algorithm as the CLI. (Generate an API-KEY)
-
-### Self-Hostable Web Platform - AlgoHive
-
-The self-hostable web platform will contains an API for the User and Competition management, and a front-end for the users to interact with the platform. The Web Plateform will be completely usable with the Puzzle API.
-
-### AlgoHive file format
-
-The AlgoHive file format is a concealing ZIP file that contains multiple files and directories to define a puzzle. The extension of the file is `.alghive`.
-
-#### Contents of the file
-
-The file contains the following directories and files:
-
-| Name             | Description                                                                                                  |
-| ---------------- | ------------------------------------------------------------------------------------------------------------ |
-| `forge.py`       | This executable python file will generate a unique input for a given seed for the puzzle.                    |
-| `decrypt.py`     | This executable python file will decrypt the input and output the solution for the first part of the puzzle  |
-| `unveil.py`      | This executable python file will decrypt the input and output the solution for the second part of the puzzle |
-| `cipher.html`    | This HTML file contains the puzzle's first part text and example input/output.                               |
-| `unveil.html`    | This HTML file contains the puzzle's second part text and example input/output.                              |
-| `props/`         | This directory contains the properties of the puzzle, such as the author, creation date and difficulty.      |
-| `props/meta.xml` | This XML file contains the meta properties of the file                                                       |
-| `props/desc.xml` | This markdown file contains the description of the puzzle.                                                   |
-
-##### `forge.py`
-
-This file is an executable python file that will generate a unique input for a given seed for the puzzle. The file should contain a class called `Forge` that has a method constructor `__init__` that takes a lines_count and a seed as arguments. The class should have a method called `run` that returns a list of strings that will be the input for the puzzle. The implementation should be inside the `generate_line` method that contains an index as an argument and returns a string. The python file should be executable and should generate the input file `input.txt` for debugging purposes.
-
-```python
-# forge.py - Génère input.txt
-import sys
-import random
-
-class Forge:
-    def __init__(self, lines_count: int, unique_id: str = None):
-        self.lines_count = lines_count
-        self.unique_id = unique_id
-
-    def run(self) -> list:
-        random.seed(self.unique_id)
-        lines = []
-        for _ in range(self.lines_count):
-            lines.append(self.generate_line(_))
-        return lines
-
-    def generate_line(self, index: int) -> str:
-        # TODO: TO BE IMPLEMENTED
-        pass
-
-if __name__ == '__main__':
-    lines_count = int(sys.argv[1])
-    unique_id = sys.argv[2]
-    forge = Forge(lines_count, unique_id)
-    lines = forge.run()
-    with open('input.txt', 'w') as f:
-        f.write('\n'.join(lines))
 ````
-
-> Using this template will allow to just focus on the `generate_line` method to generate the input for the puzzle.
-
-##### `decrypt.py`
-
-This file is an executable python file that will decrypt the input and output the solution for the first part of the puzzle. The file should contain a class called `Decrypt` that has a method constructor `__init__` that takes a list of lines as arguments. The class should have a method called `run` that, given the previously setup lines, return a string or a number that is the solution for the first part of the puzzle. The python file should be executable.
-
-```python
-class Decrypt:
-    def __init__(self, lines: list):
-        self.lines = lines
-
-    def run(self):
-        # TODO: TO BE IMPLEMENTED
-        pass
-
-if __name__ == '__main__':
-    with open('input.txt') as f:
-        lines = f.readlines()
-    decrypt = Decrypt(lines)
-    solution = decrypt.run()
-    print(solution)
-```
-
-##### `unveil.py`
-
-This file is an executable python file that will decrypt the input and output the solution for the second part of the puzzle. The file should contain a class called `Unveil` that has a method constructor `__init__` that takes a list of lines as arguments. The class should have
-a method called `run` that, given the previously setup lines, return a string or a number that is the solution for the second part of the puzzle. The python file should be executable.
-
-```python
-class Unveil:
-    def __init__(self, lines: list):
-        self.lines = lines
-
-    def run(self):
-        # TODO: TO BE IMPLEMENTED
-        pass
-
-if __name__ == '__main__':
-    with open('input.txt') as f:
-        lines = f.readlines()
-    unveil = Unveil(lines)
-    solution = unveil.run()
-    print(solution)
-```
-
-##### `cipher.html`
-
-This file is an HTML file that contains the puzzle's first part text and example input/output. The file must contain a `<article>` surrounding the content. The content can be written using `<p>` tags for paragraphs and `<pre>` or `<code>` tags for code blocks. This file should contain basic examples of the input and output of the puzzle.
-
-```html
-<article>
-  <h2>First part of the puzzle</h2>
-
-  <p>I'm a paragraph</p>
-
-  <code>
-    <pre>
-      I'm a code block
-    </pre>
-  </code>
-</article>
-```
-
-##### `unveil.html`
-
-This file is an HTML file that contains the puzzle's second part text and example input/output. The file must contain a `<article>` surrounding the content. The content can be written using `<p>` tags for paragraphs and `<pre>` or `<code>` tags for code blocks. This file should contain basic examples of the input and output of the puzzle.
-
-```html
-<article>
-  <h2>Second part of the puzzle</h2>
-
-  <p>I'm a paragraph</p>
-
-  <code>
-    <pre>
-      I'm a code block
-    </pre>
-  </code>
-</article>
-```
-
-##### `props/meta.xml`
-
-This file is an XML file that contains the meta properties of the file. The file should contain the following properties:
-
-```xml
-<Properties xmlns="http://www.w3.org/2001/WMLSchema">
-    <author>$AUTHOR</author>
-    <created>$CREATED</created>
-    <modified>$MODIFIED</modified>
-    <title>Meta</title>
-</Properties>
-```
-
-> This file will allow to be able to define the author, the creation date and the modification date of the puzzle.
-
-##### `props/desc.xml`
-
-This file is an XML file that contains the description of the puzzle. The file should contain the following properties:
-
-```xml
-<Properties xmlns="http://www.w3.org/2001/WMLSchema">
-    <difficulty>$DIFFICULTY</difficulty>
-    <language>$LANGUAGE</language>
-</Properties>
-```

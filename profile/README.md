@@ -36,13 +36,25 @@ Each puzzle contains two parts to solve, allowing developers to test their skill
   <img src="https://raw.githubusercontent.com/AlgoHive-Coding-Puzzles/Documentation/refs/heads/main/images/algohive-welcome.png">
 </p>
 
----
-
 ## Why
 
 Algohive is a coding game plateform for developers by developers. It is a self-hosted solution that allows developers, schools, and companies to create puzzles for other developers to solve. The platform is designed to be lightweight and easy to use, with a focus on creating and solving puzzles.
 
 Most of the coding game platforms are usable one time only, and are not self-hosted. This means that the puzzles are not reusable, and the platform is not customizable.
+
+### Flexibility and Adaptability
+
+AlgoHive is built with a core philosophy of avoiding hardcoded limitations. Everything in the platform is configurable and customizable to suit your needs. The system is designed to be deployed across various scales:
+
+- For a small group of developer friends collaborating on coding challenges
+- For companies with multiple teams wanting to enhance their technical skills
+- For educational institutions with hundreds of campuses, classes, and student groups
+
+The hierarchical structure is highly parameterizable, allowing you to adapt the platform to your specific organizational needs. Whether you need simple flat organization or complex nested groups with different permission levels, AlgoHive can be configured accordingly.
+
+<img src="https://raw.githubusercontent.com/AlgoHive-Coding-Puzzles/Documentation/refs/heads/main/docs/AlgoHivePermissions.drawio.png">
+
+All this flexibility comes without sacrificing performance - the platform remains lightweight and resource-efficient, making it suitable for deployment in various environments.
 
 ## Trusted by
 
